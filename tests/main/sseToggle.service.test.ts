@@ -21,10 +21,10 @@ describe('SseToggleService tests', function() {
         const service = new SseToggleService({} as DatabaseConnection, connectedClients)
         const client = connectedClients.addClient(
             testAccount, 
-            { write: (data: any) => { console.log(data); assert.ok(data); done() } } as Response, 
+            { write: (data: any) => { assert.ok(data); done() } } as Response, 
             'test')
         assert.equal(client.accountId, testAccount)
         assert.equal(client.environment, 'test')
-        service.processField(testAccount, testField, 'something')
+        service.processUpdatedField(testAccount, testField, 'something')
     })
 })

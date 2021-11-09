@@ -14,7 +14,6 @@ describe('SseClient', function() {
             environment: 'test'
         })
         sseClient.onConnect = function(e: any) {
-            console.log(e)
             sseClient.close()
             done()
         }

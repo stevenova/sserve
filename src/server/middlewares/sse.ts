@@ -11,25 +11,30 @@ function getIdentifierFromHeader(req: Request) {
 
 /** SSE Handler for ExpressJS */
 export function sseHandler(req: Request, res: Response, next: NextFunction) {
-    res.set({
-      'Cache-Control': 'no-cache',
-      'Content-Type': 'text/event-stream',
-      'Connection': 'keep-alive'
-    });
-    res.flushHeaders();
+    // Only allow when environment is being set
+    if (req.query.environment) {
+        res.set({
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive'
+        });
+        res.flushHeaders();
 
-    console.log('Client query', req.query)
+        console.log('Client query', req.query)
 
-    // Retry every 60 (default) seconds (or based on config) if connection is lost
-    res.write(`retry: ${config.sse.client.retry}\n\n`);
+        // Retry every 60 (default) seconds (or based on config) if connection is lost
+        res.write(`retry: ${config.sse.client.retry}\n\n`);
 
-    const client = ConnectedClients.addClient(getIdentifierFromHeader(req) || '', res, req.query.environment?.toString())
-    console.log('Client connected', client.id)
+        const client = ConnectedClients.addClient(getIdentifierFromHeader(req) || '', res, req.query.environment.toString())
+        console.log('Client connected', client.id)
 
-    // If client closes connection, do something
-    req.on('close', () => {
-        console.log(`${client.id} Connection closed`);
-        // Remove the disconnected client
-        ConnectedClients.removeClient(client)
-    })
+        // If client closes connection, do something
+        req.on('close', () => {
+            console.log(`${client.id} Connection closed`);
+            // Remove the disconnected client
+            ConnectedClients.removeClient(client)
+        })
+    } else {
+        next()
+    }
 }

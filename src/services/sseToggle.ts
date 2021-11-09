@@ -1,6 +1,6 @@
 import { DatabaseConnection } from '../db/db'
 import { ToggleService } from './toggle'
-import { ConnectedClients, SseConnectedClients } from '../common/sseConnectedClients'
+import { ConnectedClients, SseConnectedClients, SseConnectedClient, EventNames } from '../common/sseConnectedClients'
 
 interface FieldInformation {
     environment: string
@@ -15,19 +15,33 @@ export class SseToggleService {
     constructor(connection: DatabaseConnection, connectedClients?: SseConnectedClients) {
         this.#toggleService = new ToggleService(connection)
         this.#connectedClients = connectedClients || ConnectedClients
+        this.#connectedClients.addListener(EventNames.CLIENT_ADDED, this.#onConnectedClientAddedEvent.bind(this))
     }
 
+    /** Initializes watching of updates on ToggleService */
     init(): void {
         this.#toggleService.initWatch(this.#onToggleUpdates.bind(this))
     }
 
+    /** Receives clientAdded event from SseConnectedClients instance */
+    async #onConnectedClientAddedEvent(client: SseConnectedClient) {
+        // If a client has just been added, you would want to send the entire set of toggles
+        const environmentToggles = await this.#toggleService.getTogglesFromEnvironment(client.accountId, client.environment)
+        this.#sendDataToClient(client, environmentToggles)
+    }
+
+    #sendDataToClient(client: SseConnectedClient, data: any) {
+        client.response.write(`data: ${JSON.stringify(data)}\n\n`)
+    }
+
+    /** Receive SSE events from ToggleService */
     async #onToggleUpdates(event: any) {
         // Will only listen for update fields
         if (event.updateDescription) {
             const toggleInfo = await this.#toggleService.getToggleAccountIdById(event.documentKey._id)
             for (const [key, value] of Object.entries(event.updateDescription.updatedFields)) {
                 if (toggleInfo) {
-                    this.processField(toggleInfo.accountId, key, value)
+                    this.processUpdatedField(toggleInfo.accountId, key, value)
                 }
             }
         }
@@ -42,7 +56,7 @@ export class SseToggleService {
         }
     }
 
-    processField(accountId: string, updateField: string, value: string | number | object | unknown): void {
+    processUpdatedField(accountId: string, updateField: string, value: string | number | object | unknown): void {
         // I think updateFields can also be an array
         const fieldInfo = this.getFieldInformation(updateField)
         // Have to check throughly at some point on the field format

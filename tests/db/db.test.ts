@@ -34,33 +34,25 @@ describe('Database connection', function() {
                 // Somehow the documentation mentions a cursor, but this returns a change stream
                 let changeStream = conn.db.collection(COLLECTION.TOGGLE).watch(pipeline, options)
                 changeStream.on('change', (next) => {
-                    console.log('!!!!!!!!!!!!!!!!!!!!changeStream.on.change', next)
                     assert.ok(next)
                     changeStream.close()
+                    conn.close()
                     done()
                 })
                 changeStream.on('error', (error) => {
                     console.error('changeStream.on.error')
                     console.error(error)
                 })
-                changeStream.on('end', (lol: any) => {
-                    console.log('changeStream.on.end', lol)
-                })
-                changeStream.on('response', (response: any) => {
-                    console.log('changeStream.on.response', response)
-                })
-
                 // Setting up a time out because the documentation says that the registering might take time
                 // so we have a delay before inserting
                 setTimeout(function() {
-                    console.log('Updating one')
                     conn.db.collection(COLLECTION.TOGGLE).updateOne({ accountId: 'testAccount' }, {
                         $set: {
                             'environments.test.testToggle.value': Math.random().toString(),
                             'environments.test.testToggle.type': 'string'
                         }
                     }).then(result => {
-                        console.log('Updating one: complete', result)
+                        assert.ok(result)
                     })
                 }, 1000)
                 

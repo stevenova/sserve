@@ -14,22 +14,21 @@ describe('Watcher test', function() {
                 })
 
                 watcher.onChange = function(data: any) {
-                    console.log('watcher.onChage', data)
                     assert.ok(data)
                     watcher.destroy()
+                    conn.close()
                     done()
                 }
                 watcher.init()
 
                 setTimeout(function() {
-                    console.log('Updating one')
                     conn.db.collection(COLLECTION.TOGGLE).updateOne({ accountId: 'testAccount' }, {
                         $set: {
                             'environments.test.testToggle.value': Math.random().toString(),
                             'environments.test.testToggle.type': 'string'
                         }
                     }).then(result => {
-                        console.log('Updating one: complete', result)
+                        assert.ok(result)
                     })
                 }, 1000)
                 

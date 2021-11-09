@@ -121,6 +121,15 @@ export class ToggleService implements Destroyable {
         }
     }
 
+    /** Get the toggles for the given accountId and environment */
+    getTogglesFromEnvironment(accountId: string, environment: string) {
+        return this.#db.collection(COLLECTION.TOGGLE).findOne({
+            accountId: accountId
+        }, {
+            projection: { [`${ENVIRONMENTS}.${environment}`]: true, _id: false }
+        })
+    }
+
     getToggleAccountIdById(id: string) {
         return this.#db.collection(COLLECTION.TOGGLE).findOne({ _id: id }, { projection: { accountId: true }})
     }

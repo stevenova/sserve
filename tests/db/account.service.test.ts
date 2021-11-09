@@ -15,7 +15,7 @@ describe('AccountService db tests', function() {
                     apiKey: apiKey,
                     clientSecret: 'test'
                 }).then(result => {
-                    console.log(result)
+                    assert.ok(result)
                     conn.close()
                     done()
                 })
@@ -32,7 +32,6 @@ describe('AccountService db tests', function() {
             .then(() => {
                 const service = new AccountService(conn)
                 service.getAccountByApiKey(apiKey).then(result => {
-                    console.log(result)
                     assert.equal(result?.apiKey, apiKey)
                     conn.close()
                     done()

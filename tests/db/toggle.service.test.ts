@@ -11,7 +11,6 @@ describe('ToggleService DB tests', function() {
                 const service = new ToggleService(conn)
                 service.saveToggle('testAccount', 'development', 'toggleTest', { type: ToggleType.BOOLEAN, value: true })
                     .then((result) => {
-                        console.log(result)
                         assert.ok(result)
                         conn.close()
                         done()
@@ -31,7 +30,6 @@ describe('ToggleService DB tests', function() {
                 const service = new ToggleService(conn)
                 service.getToggleValue('testAccount', 'development', 'toggleTest')
                     .then((result) => {
-                        console.log(result)
                         assert.ok(result)
                         assert.equal(result.environments.development['toggleTest'].value, true)
                         conn.close()
@@ -51,7 +49,6 @@ describe('ToggleService DB tests', function() {
             .then(() => {
                 const service = new ToggleService(conn)
                 service.initWatch(function (data: any) {
-                    console.log('watching from toggle service')
                     assert.ok(data)
                     service.destroy()
                     done()

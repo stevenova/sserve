@@ -4,11 +4,9 @@ import { Db } from 'mongodb'
 import { COLLECTION } from '../db/constants'
 
 export class AccountService {
-    #databaseConnection: DatabaseConnection
     #db: Db
 
     constructor(connection: DatabaseConnection) {
-        this.#databaseConnection = connection
         this.#db = connection.db
     }
 
@@ -20,7 +18,6 @@ export class AccountService {
                 }, { $set: {
                     ...account
                 }}, { upsert: true })
-            console.log('Result in saving account', result)
             return result
         } catch (error) {
             console.error('Error saving account', error)
