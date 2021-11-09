@@ -43,4 +43,26 @@ describe('ToggleService DB tests', function() {
             })
         
     })
+
+    it('should watch change from service', function(done) {
+        this.timeout(5000)
+        const conn = new DatabaseConnection()
+        conn.connect()
+            .then(() => {
+                const service = new ToggleService(conn)
+                service.initWatch(function (data: any) {
+                    console.log('watching from toggle service')
+                    assert.ok(data)
+                    service.destroy()
+                    done()
+                })
+
+                setTimeout(function() {
+                    service.saveToggle('testAccount', 'development', 'toggleTest', { type: ToggleType.STRING, value: Math.random().toString() })
+                }, 1000)
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    })
 })

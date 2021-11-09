@@ -1,9 +1,11 @@
 import express from 'express'
 import { config } from '../configs/main'
 import cors from 'cors'
-import { sseHandler, sseConnectedClients } from './middlewares/sse'
+import { sseHandler } from './middlewares/sse'
 import { auth } from './middlewares/auth'
 import { singletonDatabaseConnection } from '../db/db'
+import { ConnectedClients } from '../common/sseConnectedClients'
+import { SseToggleService } from '../services/sseToggle'
 
 const PORT = +config.server.port
 const allowedOrigins = ['*'];
@@ -15,6 +17,8 @@ const options: cors.CorsOptions = {
 singletonDatabaseConnection.connect()
     .then(() => {
         console.log('Database connected')
+        const sseToggleService = new SseToggleService(singletonDatabaseConnection)
+        sseToggleService.init()
     })
     .catch((error) => {
         console.error(error)
@@ -30,9 +34,11 @@ app.get('/', (req, res) => res.send('Express SSE + TypeScript Server'))
 app.get('/events', auth, sseHandler)
 /** Sends SSE data to connected sse clients */
 app.get('/test', (req, res) => {
-    sseConnectedClients.forEach(c => c.response.write(`data: ${JSON.stringify({ now: new Date() })}\n\n`))
+    ConnectedClients.sendMessage(JSON.stringify({ now: new Date() }))
     res.status(200).json({ ok: 'ok' })
 })
+/** Toggle events */
+app.get('/toggleevents', auth, sseHandler)
 
 app.get('/page', (req, res) => {
     res.write(`

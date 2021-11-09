@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { singletonDatabaseConnection } from '../../db/db'
 import { AccountService } from '../../services/account'
+import { X_DATA_ACCOUNT } from '../constants/headers'
 
 function getToken(authorizationHeader: string | undefined): string | undefined {
     if (authorizationHeader) {
@@ -26,6 +27,7 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
                 console.error(`Unauthorized request for apiKey: ${apiKey}`)
             } else {
                 authenticated = true
+                req.headers[X_DATA_ACCOUNT] = account.accountId
             }
         } catch (error) {
             console.error('Error validating api key', error)

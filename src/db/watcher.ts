@@ -1,4 +1,5 @@
 import { ChangeStream, Db } from 'mongodb'
+import { Destroyable } from '../utils/destroyable'
 import { DatabaseConnection } from './db'
 
 interface WatcherOptions {
@@ -7,7 +8,7 @@ interface WatcherOptions {
     log?: boolean
 }
 
-export class Watcher {
+export class Watcher implements Destroyable {
     #db: Db
     #watchCollection: string
     #pipeline: any[] = []
@@ -28,6 +29,7 @@ export class Watcher {
      * Initiates the watching of the collection and configuring the listening of events
      */
     init(): void {
+        console.log(`Initializing watcher for ${this.#watchCollection} collection`)
         try {
             this.#changeStream = this.#db.collection(this.#watchCollection).watch(this.#pipeline)
             this.#changeStream.on('change', (next) => {

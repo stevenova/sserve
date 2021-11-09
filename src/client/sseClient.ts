@@ -1,5 +1,3 @@
-// import crypto from 'crypto'
-// import fetch from 'node-fetch'
 import EventSource from 'eventsource'
 
 interface SseClientOptions {

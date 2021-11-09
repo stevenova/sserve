@@ -1,11 +1,14 @@
 import { DatabaseConnection } from '../db/db'
 import { Db } from'mongodb'
 import { COLLECTION } from '../db/constants'
+import { Watcher } from '../db/watcher'
+import { Destroyable } from '../utils/destroyable'
 
 export enum ToggleType {
     BOOLEAN = 'boolean',
     OBJECT = 'object',
-    STRING = 'string'
+    STRING = 'string',
+    NUMBER = 'number'
 }
 
 export interface Toggle {
@@ -15,11 +18,16 @@ export interface Toggle {
 }
 
 /**
+ * Sample document structure
  * {
- *      accountId: uuid,
+ *      accountId: uuid, // Or some kind of id
  *      environments: {
  *          development: {
- *              something: value
+ *              something: {
+ *                  type: 'number',
+ *                  description: '',
+ *                  value: 3
+ *              }
  *          },
  *          staging: {
  *          },
@@ -31,13 +39,23 @@ export interface Toggle {
 
 const ENVIRONMENTS: string = 'environments'
 
-export class ToggleService {
-    #databaseConnection: DatabaseConnection
+export class ToggleService implements Destroyable {
+
     #db: Db
+    #watcher: Watcher
 
     constructor(connection: DatabaseConnection) {
-        this.#databaseConnection = connection
         this.#db = connection.db
+        this.#watcher = new Watcher(connection, { watchCollection: COLLECTION.TOGGLE, log: true })
+    }
+
+    initWatch(callback: Function): void {
+        this.#watcher.onChange = callback
+        this.#watcher.init()
+    }
+
+    destroy(): void {
+        this.#watcher.destroy()
     }
 
     validateToggle(toggle: Toggle) {
@@ -101,5 +119,9 @@ export class ToggleService {
             console.error('Error getting toggle', error)
             throw error
         }
+    }
+
+    getToggleAccountIdById(id: string) {
+        return this.#db.collection(COLLECTION.TOGGLE).findOne({ _id: id }, { projection: { accountId: true }})
     }
 }
