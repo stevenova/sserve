@@ -14,10 +14,16 @@ const options: cors.CorsOptions = {
     origin: allowedOrigins
 };
 
+// Check if the server has been started in test mode
+const isTestMode = !!process.argv.find(arg => arg === '--test')
+if (isTestMode) {
+    console.log('Test flag provided, will start server in test mode')
+}
+
 singletonDatabaseConnection.connect()
     .then(() => {
         console.log('Database connected')
-        const sseToggleService = new SseToggleService(singletonDatabaseConnection)
+        const sseToggleService = new SseToggleService(singletonDatabaseConnection, { isTestMode: isTestMode })
         sseToggleService.init()
     })
     .catch((error) => {

@@ -107,13 +107,12 @@ export class ToggleService implements Destroyable {
         }
     }
 
-    async getToggleValue(accountId: string, environment: string, name: string) {
+    async getToggleValue(accountId: string) {
         try {
-            // const fieldName = this.#getFieldName(environment, name)
             const result = await this.#db.collection(COLLECTION.TOGGLE)
                 .findOne({
                     accountId: accountId
-                }, { projection: { accountId: false, /*[fieldName]: true*/ } })
+                }, { projection: { accountId: false } })
             return result
         } catch (error) {
             console.error('Error getting toggle', error)

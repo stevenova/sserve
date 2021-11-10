@@ -18,7 +18,7 @@ describe('SseToggleService tests', function() {
         const testField = 'environments.test.testToggle.value'
         const testAccount = 'testAccount'
         const connectedClients = new SseConnectedClients()
-        const service = new SseToggleService({} as DatabaseConnection, connectedClients)
+        const service = new SseToggleService({} as DatabaseConnection, { connectedClients })
         const client = connectedClients.addClient(
             testAccount, 
             { write: (data: any) => { assert.ok(data); done() } } as Response, 

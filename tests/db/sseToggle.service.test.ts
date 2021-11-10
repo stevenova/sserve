@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { SseConnectedClients, EventNames } from '../../src/common/sseConnectedClients'
+import { SseConnectedClients } from '../../src/common/sseConnectedClients'
 import { SseToggleService } from '../../src/services/sseToggle'
 import { Response } from 'express'
 import { DatabaseConnection } from '../../src/db/db'
@@ -12,7 +12,7 @@ describe('SseToggleService db', function() {
         conn.connect()
             .then(() => {
                 // Something is happening inside SseToggleService that listens to clientAdded event
-                const service = new SseToggleService(conn, connectedClients)
+                const service = new SseToggleService(conn, { connectedClients })
                 const client = connectedClients.addClient(
                     'testAccount', 
                     { write: (data: any) => {

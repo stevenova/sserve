@@ -28,7 +28,7 @@ describe('ToggleService DB tests', function() {
         conn.connect()
             .then(() => {
                 const service = new ToggleService(conn)
-                service.getToggleValue('testAccount', 'development', 'toggleTest')
+                service.getToggleValue('testAccount')
                     .then((result) => {
                         assert.ok(result)
                         assert.equal(result.environments.development['toggleTest'].value, true)

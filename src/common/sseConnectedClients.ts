@@ -9,6 +9,11 @@ export interface SseConnectedClient {
     response: Response
 }
 
+export interface ClientMessage {
+    type?: string
+    data: any
+}
+
 export enum EventNames {
     CLIENT_ADDED = 'clientAdded'
 }
@@ -50,14 +55,21 @@ export class SseConnectedClients {
         this.#connectedClients = this.#connectedClients.filter(c => c.id !== client.id);
     }
 
-    /** Sends a message to all connected clients */
-    sendMessage(message: string): void {
-        this.#connectedClients.forEach(c => c.response.write(`data: ${message}\n\n`))
+    #createClientMessage(data: string, type?: string): ClientMessage {
+        return {
+            type: type,
+            data: JSON.parse(data)
+        }
     }
 
-    sendMessageByAccountId(accountId: string, environment: string, message: string): void {
+    /** Sends a message to all connected clients */
+    sendMessage(message: string, type?: string): void {
+        this.#connectedClients.forEach(c => c.response.write(`data: ${JSON.stringify(this.#createClientMessage(message, type))}\n\n`))
+    }
+
+    sendMessageByAccountId(accountId: string, environment: string, message: string, type?: string): void {
         const client = this.#connectedClients.find(c => c.accountId === accountId && c.environment === environment)
-        client?.response.write(`data: ${message}\n\n`)
+        client?.response.write(`data: ${JSON.stringify(this.#createClientMessage(message, type))}\n\n`)
     }
 
     addListener(eventName: string, listenerFunction: (...args: any[]) => void): void {
