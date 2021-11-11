@@ -13,6 +13,8 @@ Starting up the server
 
 ```npm run start:server```
 
+Currently, there is no web UI implementation to make changes to toggle values on the database.
+
 
 **Configuration**
 
