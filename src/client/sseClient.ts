@@ -55,7 +55,12 @@ export class SseClient {
     connect(): void {
         try {
             const eventSourceInitDict = {
-                headers: { Authorization: `Bearer ${this.apiKey}` }
+                headers: {
+                    // Authentication through authorization
+                    Authorization: `Bearer ${this.apiKey}`,
+                    // Or through cookie
+                    Cookie: `apiKey=${this.apiKey}`
+                }
             }
             this.eventSource = new EventSource(`${this.eventsUrl}/?environment=${this.environment}`, eventSourceInitDict)
             // Important to bind to this, because these functions are sent to the EventSource as anonymous

@@ -20,8 +20,6 @@ export function sseHandler(req: Request, res: Response, next: NextFunction) {
         });
         res.flushHeaders();
 
-        console.log('Client query', req.query)
-
         // Retry every 60 (default) seconds (or based on config) if connection is lost
         res.write(`retry: ${config.sse.client.retry}\n\n`);
 

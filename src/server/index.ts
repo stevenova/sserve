@@ -48,18 +48,28 @@ app.get('/toggleevents', auth, sseHandler)
 
 app.get('/page', (req, res) => {
     res.write(`
-    <script type="text/javascript">
-    var eventSource = new EventSource('http://localhost:1337/events')
-    eventSource.onmessage = function(evt) {
-      console.log('SSE event', evt.data);
-      document.getElementById('lol').innerHtml = event.data;
-    }
-    </script>
+    <!-- Example using normal browser's EventSource -->
     <html>
+    <header>
+    <meta charset="UTF-8" />
+    </header>
     <body>
-    <div id="lol"></div>
+    <div id="lol" width="100%" height="200px"></div>
     </body>
     </html>
+    <script type="text/javascript">
+    // Setup the cookie with the API Key
+    document.cookie = 'apiKey=170c14630ff88f2d819ff543a377257303f718f7b6ac6c8df3c6d4b35194c919'
+    // Having withCredentials set to true, will tell EventSource to send also cookies to server
+    var eventSource = new EventSource('http://localhost:1337/events?environment=test', { withCredentials: true })
+    eventSource.onmessage = function(evt) {
+        console.log('SSE event', evt.data);
+        document.getElementById('lol').innerHTML = JSON.stringify(evt.data);
+    }
+    eventSource.onerror = function(error) {
+        console.log('Error event', error)
+    }
+    </script>
     `)
     res.end()
     res.status(200)

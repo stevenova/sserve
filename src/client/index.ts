@@ -1,4 +1,4 @@
-import { SseClient } from "./sseClient"
+import { ToggleSseClient } from "./toggleSseClient"
 import { DatabaseConnection } from '../db/db'
 import { COLLECTION } from '../db/constants'
 
@@ -6,7 +6,7 @@ import { COLLECTION } from '../db/constants'
  * Example code, this runs after having the database tests run, which also adds test data
  * This sample uses fixed eventsUrl, so you will have to change it to the one you're using
  */
-const sseClient = new SseClient({
+const sseClient = new ToggleSseClient({
     clientSecret: 'test',
     apiKey: '170c14630ff88f2d819ff543a377257303f718f7b6ac6c8df3c6d4b35194c919',
     eventsUrl: 'http://localhost:1337/events',
@@ -16,7 +16,7 @@ sseClient.onConnect = function(e: any) {
     console.log('onConnect', e)
 }
 sseClient.onData = function(e: any) {
-    console.log('onData', e)
+    console.log('onData', JSON.stringify(e))
     sseClient.close()
 }
 console.log('Connecting to SSE Server')
@@ -33,6 +33,8 @@ setTimeout(function() {
                     }
                 }).then(result => {
                     console.log('Updating one: complete', result)
+                }).finally(() => {
+                    conn.close()
                 })
             })
 }, 1000)
