@@ -53,7 +53,20 @@ The URL for connecting would be the ```server:port/events?environment=test```, i
 
 If you are connecting using [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource), then you will have to provide callback functions to ```onmessage, onerror, onopen``` in order to listen for updates.  If you are using the ```SseClient``` or ```ToggleSseClient```, then you have to provide callback functions to ```onData, onConnect, onError```.  You can check the ```tests``` folder for examples on how to use it.
 
-
+**Example connecting from a browser using standard EventSource**
+```
+// Setting the API Key (token) using cookie in browser
+document.cookie = 'apiKey=170c14630ff88f2d819ff543a377257303f718f7b6ac6c8df3c6d4b35194c919'
+// Having withCredentials set to true, will tell EventSource to send also cookies to server
+var eventSource = new EventSource('http://localhost:1337/events?environment=test', { withCredentials: true })
+// Provide callback function where to receive the event from server
+eventSource.onmessage = function(evt) {
+    console.log('SSE event', evt.data);
+}
+eventSource.onerror = function(error) {
+    console.log('Error event', error)
+}
+```
 
 **Unit tests**
 
